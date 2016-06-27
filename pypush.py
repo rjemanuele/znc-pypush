@@ -54,7 +54,7 @@ class pypush(znc.Module):
         argv = commandstr.split()
         try:
             self.PutModule("Command!! {0}".format(argv))
-            method = getattr(self, "DoCommand" + argv[0].replace('-','_'), self.DoCommandNotUnderstood)
+            method = getattr(self, "DoCommand_" + argv[0].replace('-','_').lower(), self.DoCommandNotUnderstood)
             method(argv)
         except Exception:
             self.PutModule("Command Exception!! {0} -> {1}".format(argv, traceback.format_exc()))
@@ -62,22 +62,22 @@ class pypush(znc.Module):
 
     def DoCommandNotUnderstood(self, argv):
         self.PutModule("Command Not Understood: {0}".format(argv))
-        
-    def DoCommandSetUser(self, argv):
+
+    def DoCommand_setuser(self, argv):
         try:
             self.nv['user'] = argv[1]
             self.PutModule("Pushover user set")
         except Exception:
             self.PutModule("SetUser requires a Pushover user string");
 
-    def DoCommandSetToken(self, argv):
+    def DoCommand_settoken(self, argv):
         try:
             self.nv['token'] = argv[1]
             self.PutModule("Pushover token set")
         except Exception:
             self.PutModule("SetToken requires a Pushover token string");
 
-    def DoCommandSetHighlight(self, argv):
+    def DoCommand_sethighlight(self, argv):
         self.nv['highlight'] = ' '.join(argv[1:])
         self.InitHighlightWords(argv[1:])
 
