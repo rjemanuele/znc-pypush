@@ -16,7 +16,7 @@ Load the module and setup the Pushover settings.
 ```
 This will now send Pushover mesages when your nick is mentioned in channel or you are private messaged.
 ## Other
-Add other words in chennel to highlight on
+Add other words in channel to highlight on
 ```
 /msg sethighlight foo bar
 ```
