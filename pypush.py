@@ -13,19 +13,8 @@ class pypush(znc.Module):
     description = "Push python3 module for ZNC"
 
     def OnLoad(self, sArgs, sMessage):
-        self.nick = 'rje'
-        self.PutModule("Load Test")
-        #self.PutModule("Loaded for user: {0}".format(self._cmod.GetUser()))
-        self.InitHighlightWords(self.nv['highlight'].split())
+        self.words = self.nv['highlight'].split()
         return znc.CONTINUE
-
-    def InitHighlightWords(self, words=None):
-        self.words = [self.nick, ]
-        try:
-            self.words.extend(words)
-        except Exception:
-            pass
-        self.PutModule("Highlight Words: {0}".format(self.words))
 
     def PushMsg(self, title, msg):
         self.PutModule("{0} -- {1}".format(title, msg))
@@ -39,11 +28,15 @@ class pypush(znc.Module):
                      }), { "Content-type": "application/x-www-form-urlencoded" })
         conn.getresponse()
 
-    def OnChanMsg(self, nick, channel, message):
+    def Highlight(self, message):
         for word in self.words:
             if findWord(word)(message.s):
-                self.PushMsg("Highlight", "{0}: [{1}] {2}".format(channel.GetName(), nick.GetNick(), message.s))
-                break
+                return True
+        return False
+
+    def OnChanMsg(self, nick, channel, message):
+        if findWord(self._cmod.GetNetwork().GetCurNick())(message.s) or Highlight(message.s):
+            self.PushMsg("Highlight", "{0}: [{1}] {2}".format(channel.GetName(), nick.GetNick(), message.s))
         return znc.CONTINUE
 
     def OnPrivMsg(self, nick, message):
@@ -79,5 +72,6 @@ class pypush(znc.Module):
 
     def DoCommand_sethighlight(self, argv):
         self.nv['highlight'] = ' '.join(argv[1:])
-        self.InitHighlightWords(argv[1:])
+        self.words = argv[1:]
+
 
