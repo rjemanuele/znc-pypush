@@ -11,10 +11,15 @@ class pypush(znc.Module):
 
     def OnLoad(self, sArgs, sMessage):
         self.nick = ''
+        self.debug = False
         return znc.CONTINUE
 
+    def PutModuleDbg(self, s):
+        if self.debug:
+            self.PutModule(s)
+
     def PushMsg(self, title, msg):
-        self.PutModule("{0} -- {1}".format(title, msg))
+        self.PutModuleDbg("{0} -- {1}".format(title, msg))
         conn = http.client.HTTPSConnection("api.pushover.net:443")
         conn.request("POST", "/1/messages.json",
                      urllib.parse.urlencode({
@@ -71,5 +76,9 @@ class pypush(znc.Module):
     def DoCommand_sethighlight(self, argv):
         self.nv['highlight'] = ' '.join(argv[1:])
         self.nick = '' # unset the nick to regenerate the re
+
+    def DoCommand_debug(self, argv):
+        self.debug = not self.debug
+        self.PutModule("Debug {0}".format(self.debug));
 
 
