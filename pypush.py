@@ -5,15 +5,12 @@ import re
 import http.client, urllib
 import traceback
 
-def findWord(w):
-    return re.compile(r'\b({0})\b'.format(w), flags=re.IGNORECASE).search
-
 class pypush(znc.Module):
     module_types = [znc.CModInfo.UserModule]
     description = "Push python3 module for ZNC"
 
     def OnLoad(self, sArgs, sMessage):
-        self.words = self.nv['highlight'].split()
+        self.nick = ''
         return znc.CONTINUE
 
     def PushMsg(self, title, msg):
@@ -29,13 +26,14 @@ class pypush(znc.Module):
         conn.getresponse()
 
     def Highlight(self, message):
-        for word in self.words:
-            if findWord(word)(message.s):
-                return True
-        return False
+        if self.nick != self.GetNetwork().GetCurNick():
+            self.nick = self.GetNetwork().GetCurNick()
+            words = [self.nick, ] + self.nv['highlight'].split()
+            self.HighlightRE = re.compile(r'\b({0})\b'.format('|'.join(words)), flags=re.IGNORECASE).search
+        return self.HighlightRE(message)
 
     def OnChanMsg(self, nick, channel, message):
-        if findWord(self._cmod.GetNetwork().GetCurNick())(message.s) or Highlight(message.s):
+        if self.Highlight(message.s):
             self.PushMsg("Highlight", "{0}: [{1}] {2}".format(channel.GetName(), nick.GetNick(), message.s))
         return znc.CONTINUE
 
@@ -72,6 +70,6 @@ class pypush(znc.Module):
 
     def DoCommand_sethighlight(self, argv):
         self.nv['highlight'] = ' '.join(argv[1:])
-        self.words = argv[1:]
+        self.nick = '' # unset the nick to regenerate the re
 
 
