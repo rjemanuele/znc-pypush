@@ -81,4 +81,8 @@ class pypush(znc.Module):
         self.debug = not self.debug
         self.PutModule("Debug {0}".format(self.debug));
 
+    def DoCommand_test(self, argv):
+        self.PushMsg("Test", "{0}".format(' '.join(argv[0:])))
+        return znc.CONTINUE
+
 
