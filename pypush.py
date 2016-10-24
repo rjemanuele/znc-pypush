@@ -4,6 +4,7 @@ import znc
 import re
 import http.client, urllib
 import traceback
+import inspect
 
 class pypush(znc.Module):
     module_types = [znc.CModInfo.UserModule]
@@ -59,7 +60,15 @@ class pypush(znc.Module):
     def DoCommandNotUnderstood(self, argv):
         self.PutModule("Command Not Understood: {0}".format(argv))
 
+    def DoCommand_help(self, argv):
+        '''Help'''
+        self.PutModule("Help")
+        for command in inspect.getmembers(self, lambda x: inspect.ismethod(x) and x.__name__.startswith('DoCommand_')):
+            self.PutModule("{0} - {1}".format(command[0].split("_")[1], inspect.getdoc(command[1])))
+        return znc.CONTINUE
+
     def DoCommand_setuser(self, argv):
+        '''Set's the user string for Pushover'''
         try:
             self.nv['user'] = argv[1]
             self.PutModule("Pushover user set")
@@ -67,6 +76,7 @@ class pypush(znc.Module):
             self.PutModule("SetUser requires a Pushover user string");
 
     def DoCommand_settoken(self, argv):
+        '''Set's the token string for Pushover'''
         try:
             self.nv['token'] = argv[1]
             self.PutModule("Pushover token set")
@@ -74,11 +84,18 @@ class pypush(znc.Module):
             self.PutModule("SetToken requires a Pushover token string");
 
     def DoCommand_sethighlight(self, argv):
+        '''Set's additional words to highlight on'''
         self.nv['highlight'] = ' '.join(argv[1:])
         self.nick = '' # unset the nick to regenerate the re
 
     def DoCommand_debug(self, argv):
+        '''Toggle Debugging'''
         self.debug = not self.debug
         self.PutModule("Debug {0}".format(self.debug));
+
+    def DoCommand_test(self, argv):
+        '''Send a test string to Pushover'''
+        self.PushMsg("Test", "{0}".format(' '.join(argv[0:])))
+        return znc.CONTINUE
 
 
