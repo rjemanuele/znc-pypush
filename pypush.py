@@ -68,7 +68,7 @@ class pypush(znc.Module):
         return znc.CONTINUE
 
     def DoCommand_setuser(self, argv):
-        '''Set's the user string for Pushover'''
+        '''Sets the user string for Pushover'''
         try:
             self.nv['user'] = argv[1]
             self.PutModule("Pushover user set")
@@ -76,7 +76,7 @@ class pypush(znc.Module):
             self.PutModule("SetUser requires a Pushover user string");
 
     def DoCommand_settoken(self, argv):
-        '''Set's the token string for Pushover'''
+        '''Sets the token string for Pushover'''
         try:
             self.nv['token'] = argv[1]
             self.PutModule("Pushover token set")
@@ -84,7 +84,7 @@ class pypush(znc.Module):
             self.PutModule("SetToken requires a Pushover token string");
 
     def DoCommand_sethighlight(self, argv):
-        '''Set's additional words to highlight on'''
+        '''Sets additional words to highlight on'''
         self.nv['highlight'] = ' '.join(argv[1:])
         self.nick = '' # unset the nick to regenerate the re
 
